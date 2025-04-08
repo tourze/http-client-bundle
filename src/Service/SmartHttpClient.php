@@ -46,7 +46,7 @@ class SmartHttpClient implements HttpClientInterface
             if (!filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4)) {
                 $ip = gethostbyname($host);
             }
-            $item->expiresAfter($_ENV["API_CLIENT_DNS_RESOLVE_{$host}_CACHE_TIME"] ?? $_ENV['API_CLIENT_DNS_RESOLVE_CACHE_TIME'] ?? HOUR_IN_SECONDS);
+            $item->expiresAfter($_ENV["API_CLIENT_DNS_RESOLVE_{$host}_CACHE_TIME"] ?? $_ENV['API_CLIENT_DNS_RESOLVE_CACHE_TIME'] ?? 60 * 60);
             return $ip;
         });
     }

@@ -24,7 +24,7 @@ class CacheHttpClient implements HttpClientInterface
     {
         // 如果有声明缓存，则我们处理一次缓存
         $cacheKey = $options['cache_key'] ?? null;
-        $cacheTTL = $options['cache_ttl'] ?? HOUR_IN_SECONDS;
+        $cacheTTL = $options['cache_ttl'] ?? 60 * 60;
         unset($options['cache_key']);
         unset($options['cache_ttl']);
 
