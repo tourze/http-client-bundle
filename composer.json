@@ -15,7 +15,7 @@
     "symfony/framework-bundle": "^6.4",
     "symfony/http-client": "^6.4",
     "symfony/lock": "^6.4",
-    "tourze/backtrace-helper": "～0.0.5",
+    "tourze/backtrace-helper": "~0.0.5",
     "tourze/easy-admin-attribute": "0.0.*",
     "tourze/doctrine-async-bundle": "0.0.*",
     "tourze/doctrine-timestamp-bundle": "0.0.*",
