@@ -12,7 +12,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
-use Tourze\Symfony\Aop\Service\ContextService;
+use Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface;
 
 /**
  * Symfony有自己的一套curl请求类库判断逻辑，默认是curl>amp>native
@@ -27,7 +27,7 @@ class SmartHttpClient implements HttpClientInterface
 
     public function __construct(
         private readonly CacheInterface $cache,
-        private readonly ContextService $contextService,
+        private readonly ContextServiceInterface $contextService,
     )
     {
     }
@@ -54,7 +54,7 @@ class SmartHttpClient implements HttpClientInterface
     protected function getInner(): HttpClientInterface
     {
         // 兼容不同的环境
-        if ($this->contextService->isSwoole()) {
+        if ($this->contextService->supportCoroutine()) {
             $this->inner = new NativeHttpClient();
         }
         // 这里强制使用了CURL

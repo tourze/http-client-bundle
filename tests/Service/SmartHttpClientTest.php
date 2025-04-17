@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Tourze\Symfony\Aop\Service\ContextService;
+use Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface;
 
 /**
  * @covers \HttpClientBundle\Service\SmartHttpClient
@@ -17,13 +17,13 @@ class SmartHttpClientTest extends TestCase
 {
     private SmartHttpClient|MockObject $client;
     private CacheInterface|MockObject $cache;
-    private ContextService|MockObject $contextService;
+    private ContextServiceInterface|MockObject $contextService;
     private HttpClientInterface|MockObject $innerClient;
 
     protected function setUp(): void
     {
         $this->cache = $this->createMock(CacheInterface::class);
-        $this->contextService = $this->createMock(ContextService::class);
+        $this->contextService = $this->createMock(ContextServiceInterface::class);
         $this->innerClient = $this->createMock(HttpClientInterface::class);
 
         $this->client = $this->getMockBuilder(SmartHttpClient::class)
