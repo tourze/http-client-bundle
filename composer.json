@@ -26,6 +26,7 @@
     "symfony/service-contracts": "^3",
     "symfony/cache-contracts": "^3",
     "symfony/event-dispatcher-contracts": "^2.5 | ^3",
+    "symfony/yaml": "^6.4 || ^7.1",
     "tourze/backtrace-helper": "~0.0.5",
     "tourze/easy-admin-attribute": "0.0.*",
     "tourze/doctrine-async-bundle": "^0.0.6",
