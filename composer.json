@@ -23,7 +23,7 @@
     "symfony/http-client": "^6.4",
     "symfony/http-client-contracts": "^2.5 | ^3.0",
     "symfony/lock": "^6.4",
-    "symfony/service-contracts": "^2.5 || ^3",
+    "symfony/service-contracts": "^3",
     "symfony/cache-contracts": "^3",
     "symfony/event-dispatcher-contracts": "^2.5 | ^3",
     "tourze/backtrace-helper": "~0.0.5",
