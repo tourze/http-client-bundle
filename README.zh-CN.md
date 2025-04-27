@@ -7,38 +7,38 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/tourze/http-client-bundle.svg?style=flat-square)](https://scrutinizer-ci.com/g/tourze/http-client-bundle)
 [![Total Downloads](https://img.shields.io/packagist/dt/tourze/http-client-bundle.svg?style=flat-square)](https://packagist.org/packages/tourze/http-client-bundle)
 
-A powerful Symfony HTTP client bundle with smart implementation selection, request caching, distributed locking, retry, detailed logging, coroutine support, DNS cache, async requests, and event-driven extensibility.
+一个基于 Symfony 的高性能 HTTP 客户端增强包，支持智能实现选择、请求缓存、分布式锁、自动重试、详细日志、协程、DNS 缓存、异步请求与事件驱动扩展。
 
 ---
 
-## Features
+## 功能特性
 
-- Smart HTTP client, auto-selects best implementation (curl/native)
-- Request caching for efficient API data retrieval
-- Distributed lock to prevent duplicate requests
-- Automatic retry for transient errors
-- Full request/response logging
-- Coroutine support (prevents curl instance sharing)
-- DNS resolution cache
-- Asynchronous request support
-- Event system for request/response hooks
+- 智能 HTTP 客户端，自动选择最优实现（curl/native）
+- 请求缓存，提升 API 数据获取效率
+- 分布式锁机制，防止重复请求
+- 自动重试，处理临时性故障
+- 完整的请求/响应日志
+- 协程支持，防止 curl 实例共用
+- DNS 解析缓存
+- 支持异步请求
+- 事件系统，支持请求/响应钩子
 
-## Installation
+## 安装说明
 
 - PHP >= 8.1
 - Symfony >= 6.4
 
-Install via Composer:
+使用 Composer 安装：
 
 ```bash
 composer require tourze/http-client-bundle
 ```
 
-## Quick Start
+## 快速开始
 
-### 1. Create an API Client
+### 1. 创建 API 客户端
 
-Extend the `ApiClient` class and implement required methods:
+继承 `ApiClient` 类并实现必要方法：
 
 ```php
 use HttpClientBundle\Client\ApiClient;
@@ -57,9 +57,9 @@ class MyApiClient extends ApiClient
 }
 ```
 
-### 2. Create a Request Class
+### 2. 创建请求类
 
-#### Basic Request
+#### 基础请求
 
 ```php
 use HttpClientBundle\Request\RequestInterface;
@@ -86,7 +86,7 @@ class MyApiRequest implements RequestInterface
 }
 ```
 
-#### Cached Request
+#### 带缓存的请求
 
 ```php
 use HttpClientBundle\Request\CacheRequest;
@@ -98,12 +98,12 @@ class CachedApiRequest implements RequestInterface, CacheRequest
     }
     public function getCacheDuration(): int
     {
-        return 3600; // cache for 1 hour
+        return 3600; // 缓存1小时
     }
 }
 ```
 
-#### Request with Distributed Lock
+#### 带分布式锁的请求
 
 ```php
 use HttpClientBundle\Request\LockRequest;
@@ -116,7 +116,7 @@ class LockedApiRequest implements RequestInterface, LockRequest
 }
 ```
 
-#### Auto-Retry Request
+#### 自动重试请求
 
 ```php
 use HttpClientBundle\Request\AutoRetryRequest;
@@ -124,12 +124,12 @@ class RetryableApiRequest implements RequestInterface, AutoRetryRequest
 {
     public function getMaxRetries(): int
     {
-        return 3; // maximum 3 retries
+        return 3; // 最多重试3次
     }
 }
 ```
 
-### 3. Send a Request
+### 3. 客户端发送请求
 
 ```php
 class MyService
@@ -144,9 +144,9 @@ class MyService
 }
 ```
 
-### 4. Asynchronous Requests
+### 4. 异步请求
 
-Use the `@Async` attribute to enable async requests:
+使用 `@Async` 注解实现异步请求：
 
 ```php
 use Tourze\Symfony\Async\Attribute\Async;
@@ -162,9 +162,9 @@ class MyAsyncService
 }
 ```
 
-### 5. Event Listeners
+### 5. 事件监听
 
-You can listen to request and response events:
+可监听请求和响应事件：
 
 ```php
 use HttpClientBundle\Event\RequestEvent;
@@ -181,36 +181,36 @@ class ApiEventSubscriber implements EventSubscriberInterface
     }
     public function onRequest(RequestEvent $event): void
     {
-        // handle request event
+        // 处理请求事件
     }
     public function onResponse(ResponseEvent $event): void
     {
-        // handle response event
+        // 处理响应事件
     }
 }
 ```
 
-## Documentation
+## 详细文档
 
-- API docs: See source code for detailed interfaces and advanced usage.
-- Configurations: Customize caching, locking, retry, and async via Symfony config.
-- [Workflow Diagram](WORKFLOW.md): See the full request processing flow.
-- [Entity Design](ENTITY_DESIGN.zh-CN.md): Database entity details.
+- API 文档：详见源码接口和高级用法
+- 配置项：可通过 Symfony 配置自定义缓存、锁、重试、异步等
+- [工作流程图](WORKFLOW.md)：详见请求处理全流程
+- [实体设计](ENTITY_DESIGN.zh-CN.md)：数据库实体说明
 
-## Contribution
+## 贡献指南
 
-1. Fork the repo, create a feature branch.
-2. Submit issues and pull requests with clear descriptions.
-3. Follow PSR coding standards and ensure tests pass (`phpunit`).
+1. Fork 仓库、新建功能分支
+2. 提交 issue 和 PR 时请附详细说明
+3. 遵循 PSR 代码规范，确保测试通过（`phpunit`）
 
-## License
+## 版权和许可
 
-MIT License. See [LICENSE](../../LICENSE).
+MIT License，详见 [LICENSE](../../LICENSE)
 
-## Author
+## 作者信息
 
 tourze <https://github.com/tourze>
 
-## Changelog
+## 更新日志
 
-See [releases](https://github.com/tourze/http-client-bundle/releases) for version history and upgrade notes.
+详见 [releases](https://github.com/tourze/http-client-bundle/releases) 获取版本历史与升级说明。
