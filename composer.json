@@ -35,7 +35,7 @@
     "tourze/doctrine-ip-bundle": "0.0.*",
     "tourze/doctrine-user-agent-bundle": "0.0.*",
     "tourze/doctrine-indexed-bundle": "0.0.*",
-    "tourze/symfony-schedule-entity-clean-bundle": "0.0.*",
+    "tourze/symfony-schedule-entity-clean-bundle": "0.1.*",
     "tourze/symfony-runtime-context-bundle": "0.0.*",
     "yiisoft/json": "^1.0"
   },
