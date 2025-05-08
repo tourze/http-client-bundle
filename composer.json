@@ -36,10 +36,10 @@
     "tourze/doctrine-user-agent-bundle": "0.0.*",
     "tourze/doctrine-user-bundle": "0.0.*",
     "tourze/easy-admin-attribute": "0.1.*",
+    "tourze/symfony-async-bundle": "0.0.*",
     "tourze/symfony-runtime-context-bundle": "0.0.*",
     "tourze/symfony-schedule-entity-clean-bundle": "0.1.*",
-    "yiisoft/json": "^1.0",
-    "tourze/symfony-async-bundle": "0.0.*"
+    "yiisoft/json": "^1.0"
   },
   "require-dev": {
     "phpstan/phpstan": "^2.1",
