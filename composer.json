@@ -37,7 +37,8 @@
     "tourze/doctrine-indexed-bundle": "0.0.*",
     "tourze/symfony-schedule-entity-clean-bundle": "0.1.*",
     "tourze/symfony-runtime-context-bundle": "0.0.*",
-    "yiisoft/json": "^1.0"
+    "yiisoft/json": "^1.0",
+    "psr/container": "^1.1|^2.0"
   },
   "autoload": {
     "psr-4": {
