@@ -31,6 +31,7 @@
     "symfony/service-contracts": "^3.5",
     "symfony/yaml": "^6.4 || ^7.1",
     "tourze/backtrace-helper": "~0.0.5",
+    "tourze/bundle-dependency": "0.0.*",
     "tourze/doctrine-async-bundle": "^0.0.6",
     "tourze/doctrine-indexed-bundle": "0.0.*",
     "tourze/doctrine-ip-bundle": "0.0.*",
