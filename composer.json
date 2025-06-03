@@ -30,7 +30,7 @@
     "symfony/lock": "^6.4",
     "symfony/service-contracts": "^3.5",
     "symfony/yaml": "^6.4 || ^7.1",
-    "tourze/backtrace-helper": "~0.0.5",
+    "tourze/backtrace-helper": "0.1.*",
     "tourze/bundle-dependency": "0.0.*",
     "tourze/doctrine-async-bundle": "0.1.*",
     "tourze/doctrine-indexed-bundle": "0.0.*",
