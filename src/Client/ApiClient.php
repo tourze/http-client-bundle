@@ -42,7 +42,7 @@ use Symfony\Contracts\Service\ServiceMethodsSubscriberTrait;
 use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Tourze\BacktraceHelper\Backtrace;
 use Tourze\BacktraceHelper\ExceptionPrinter;
-use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
+use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 use Tourze\Symfony\Async\Attribute\Async;
 use Yiisoft\Json\Json;
 
@@ -82,7 +82,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
     }
 
     #[SubscribedService]
-    private function getDoctrineService(): DoctrineService
+    private function getDoctrineService(): AsyncInsertService
     {
         return $this->container->get(__METHOD__);
     }

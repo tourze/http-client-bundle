@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
-use Tourze\DoctrineAsyncBundle\Service\DoctrineService;
+use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 
 /**
  * 测试用的具体ApiClient实现
@@ -95,7 +95,7 @@ class ApiClientTest extends TestCase
     private CacheInterface|MockObject $cache;
     private EventDispatcherInterface|MockObject $eventDispatcher;
     private LockFactory|MockObject $lockFactory;
-    private DoctrineService|MockObject $doctrineService;
+    private AsyncInsertService|MockObject $doctrineService;
     private LoggerInterface|MockObject $logger;
 
     protected function setUp(): void
@@ -108,8 +108,8 @@ class ApiClientTest extends TestCase
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         /** @var LockFactory&MockObject $lockFactory */
         $this->lockFactory = $this->createMock(LockFactory::class);
-        /** @var DoctrineService&MockObject $doctrineService */
-        $this->doctrineService = $this->createMock(DoctrineService::class);
+        /** @var AsyncInsertService&MockObject $doctrineService */
+        $this->doctrineService = $this->createMock(AsyncInsertService::class);
         /** @var LoggerInterface&MockObject $logger */
         $this->logger = $this->createMock(LoggerInterface::class);
 
