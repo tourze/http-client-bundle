@@ -43,7 +43,7 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 use Tourze\BacktraceHelper\Backtrace;
 use Tourze\BacktraceHelper\ExceptionPrinter;
 use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService as DoctrineService;
-use Tourze\Symfony\AopAsyncBundle\Attribute\Async;
+use Tourze\Symfony\Async\Attribute\Async;
 use Yiisoft\Json\Json;
 
 /**
