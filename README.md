@@ -149,7 +149,7 @@ class MyService
 Use the `@Async` attribute to enable async requests:
 
 ```php
-use Tourze\Symfony\Async\Attribute\Async;
+use Tourze\Symfony\AopAsyncBundle\Attribute\Async;
 class MyAsyncService
 {
     public function __construct(private MyApiClient $client) {}

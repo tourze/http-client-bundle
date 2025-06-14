@@ -149,7 +149,7 @@ class MyService
 使用 `@Async` 注解实现异步请求：
 
 ```php
-use Tourze\Symfony\Async\Attribute\Async;
+use Tourze\Symfony\AopAsyncBundle\Attribute\Async;
 class MyAsyncService
 {
     public function __construct(private MyApiClient $client) {}
