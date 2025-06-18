@@ -10,58 +10,44 @@ use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
 use Tourze\DoctrineUserAgentBundle\Attribute\CreateUserAgentColumn;
 use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
 use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
-use Tourze\EasyAdmin\Attribute\Column\ListColumn;
-use Tourze\EasyAdmin\Attribute\Permission\AsPermission;
 use Tourze\ScheduleEntityCleanBundle\Attribute\AsScheduleClean;
 
 /**
  * 请求外部接口日志
  */
 #[AsScheduleClean(expression: '40 1 * * *', defaultKeepDay: 1, keepDayEnv: 'HTTP_REQUEST_LOG_PERSIST_DAY_NUM')]
-#[AsPermission(title: '请求外部接口日志')]
 #[ORM\Entity]
 #[ORM\Table(name: 'http_request', options: ['comment' => '请求外部接口日志'])]
 class HttpRequestLog
 {
-    #[ListColumn(order: -1)]
-    #[ExportColumn]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
     private ?int $id = 0;
 
     #[IndexColumn]
-    #[ListColumn]
     #[ORM\Column(length: 512, options: ['comment' => '请求链接'])]
     private ?string $requestUrl = null;
 
-    #[ListColumn]
     #[ORM\Column(length: 20, nullable: true, options: ['comment' => '请求方式'])]
     private ?string $method = null;
 
-    #[ListColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '请求内容'])]
     private ?string $content = null;
 
-    #[ListColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '响应内容'])]
     private ?string $response = null;
 
-    #[ListColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '异常'])]
     private ?string $exception = null;
 
-    #[ListColumn]
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2, nullable: true, options: ['comment' => '执行时长'])]
     private ?string $stopwatchDuration = null;
 
-    #[ListColumn]
     #[ORM\Column(nullable: true, options: ['comment' => '原始请求对象'])]
     private ?array $requestOptions = null;
 
     #[IndexColumn]
-    #[ListColumn(order: 98, sorter: true)]
-    #[ExportColumn]
     #[CreateTimeColumn]
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]
     private ?\DateTimeInterface $createTime = null;
@@ -70,7 +56,6 @@ class HttpRequestLog
     #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
     private ?string $createdBy = null;
 
-    #[ListColumn(order: 99)]
     #[CreateIpColumn]
     #[ORM\Column(length: 45, nullable: true, options: ['comment' => '创建时IP'])]
     private ?string $createdFromIp = null;
@@ -121,7 +106,6 @@ class HttpRequestLog
     }
 
     #[ExportColumn(title: '状态')]
-    #[ListColumn(title: '状态')]
     public function renderStatus(): string
     {
         return $this->getException() ? '异常' : '成功';
