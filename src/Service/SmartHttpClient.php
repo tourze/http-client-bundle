@@ -3,12 +3,12 @@
 namespace HttpClientBundle\Service;
 
 use League\Uri\Uri;
-use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\HttpClient\CurlHttpClient;
 use Symfony\Component\HttpClient\NativeHttpClient;
 use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
@@ -41,7 +41,7 @@ class SmartHttpClient implements HttpClientInterface
     {
         // 我们在缓存中记录下当前的解析结果，方便我们下次不重复使用
         $cacheKey = $this->getResolveCacheKey($host);
-        return $this->cache->get($cacheKey, function (CacheItem $item) use ($host) {
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($host) {
             $ip = $host;
             if (!filter_var($ip, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV4)) {
                 $ip = gethostbyname($host);
@@ -68,10 +68,10 @@ class SmartHttpClient implements HttpClientInterface
     {
         $uri = Uri::new($url);
         // 自定义DNS解析
-        if (($_ENV['API_CLIENT_INTERNAL_DNS_RESOLVE'] ?? false) && !isset($options['resolve'])) {
+        if (!empty($_ENV['API_CLIENT_INTERNAL_DNS_RESOLVE']) && !isset($options['resolve'])) {
             $options['resolve'][$uri->getHost()] = $this->refreshDomainResolveCache($uri->getHost());
         }
-        if ($_ENV["API_CLIENT_DOMAIN_{$uri->getHost()}_DNS_RESOLVE"] ?? false) {
+        if (!empty($_ENV["API_CLIENT_DOMAIN_{$uri->getHost()}_DNS_RESOLVE"])) {
             $options['resolve'][$uri->getHost()] = $_ENV["API_CLIENT_DOMAIN_{$uri->getHost()}_DNS_RESOLVE"];
         }
 

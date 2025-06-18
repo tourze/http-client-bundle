@@ -64,6 +64,15 @@ class HttpRequestLog
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '创建时UA'])]
     private ?string $createdFromUa = null;
 
+    public function __toString(): string
+    {
+        if ($this->id === null) {
+            return 'New HTTP Request Log';
+        }
+        
+        return sprintf('HTTP Request Log #%d - %s', $this->id, $this->requestUrl ?? 'Unknown URL');
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -108,7 +117,7 @@ class HttpRequestLog
     #[ExportColumn(title: '状态')]
     public function renderStatus(): string
     {
-        return $this->getException() ? '异常' : '成功';
+        return $this->getException() !== null ? '异常' : '成功';
     }
 
     public function getRequestUrl(): ?string

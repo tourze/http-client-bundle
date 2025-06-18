@@ -197,7 +197,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
     public function request(RequestInterface $request): mixed
     {
         $method = $request->getRequestMethod();
-        if (!$method) {
+        if ($method === null || $method === '') {
             $method = $this->getRequestMethod($request);
         }
 
@@ -318,7 +318,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
         // 增加代理域名判断
         $proxyDomains = $_ENV['HTTP_REQUEST_PROXY_DOMAINS'] ?? '';
         $proxyDSN = $_ENV['HTTP_REQUEST_PROXY'] ?? '';
-        if ($proxyDomains && $proxyDSN) {
+        if (!empty($proxyDomains) && !empty($proxyDSN)) {
             if (!is_array($proxyDomains)) {
                 $proxyDomains = explode(',', $proxyDomains);
             }
