@@ -2,7 +2,7 @@
 
 namespace HttpClientBundle\Client;
 
-use Carbon\Carbon;
+use Carbon\CarbonImmutable;
 use HttpClientBundle\Entity\HttpRequestLog;
 use HttpClientBundle\Event\RequestEvent;
 use HttpClientBundle\Event\ResponseEvent;
@@ -155,7 +155,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
             return new Failure("域名SSL证书已过期[$host]");
         }
         // 提前7天提醒
-        if ($certificate->expirationDate()->diffInDays(Carbon::now()) <= 7) {
+        if ($certificate->expirationDate()->diffInDays(CarbonImmutable::now()) <= 7) {
             return new Warning("域名SSL证书过期提醒[$host]将于[{$certificate->expirationDate()->format('Y-m-d H:i:s')}]过期");
         }
 
@@ -313,7 +313,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
         $event->setOptions($options);
         $this->getEventDispatcher()->dispatch($event);
 
-        $startTime = Carbon::now();
+        $startTime = CarbonImmutable::now();
 
         // 增加代理域名判断
         $proxyDomains = $_ENV['HTTP_REQUEST_PROXY_DOMAINS'] ?? '';
@@ -350,7 +350,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
         }
 
         // 要注意，这里截取结束时间要放到 getContent 之后
-        $endTime = Carbon::now();
+        $endTime = CarbonImmutable::now();
         $duration = round($endTime->getPreciseTimestamp() / 1000 - $startTime->getPreciseTimestamp() / 1000, 6);
         $statusCode = intval($response->getInfo('http_code'));
 
