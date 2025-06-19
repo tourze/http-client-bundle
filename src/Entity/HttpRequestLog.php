@@ -6,10 +6,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
 use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
-use Tourze\DoctrineTimestampBundle\Attribute\CreateTimeColumn;
+use Tourze\DoctrineTimestampBundle\Traits\CreateTimeAware;
 use Tourze\DoctrineUserAgentBundle\Attribute\CreateUserAgentColumn;
-use Tourze\DoctrineUserBundle\Attribute\CreatedByColumn;
-use Tourze\EasyAdmin\Attribute\Column\ExportColumn;
+use Tourze\DoctrineUserBundle\Traits\CreatedByAware;
 use Tourze\ScheduleEntityCleanBundle\Attribute\AsScheduleClean;
 
 /**
@@ -20,6 +19,9 @@ use Tourze\ScheduleEntityCleanBundle\Attribute\AsScheduleClean;
 #[ORM\Table(name: 'http_request', options: ['comment' => '请求外部接口日志'])]
 class HttpRequestLog
 {
+    use CreateTimeAware;
+    use CreatedByAware;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
@@ -47,15 +49,6 @@ class HttpRequestLog
     #[ORM\Column(nullable: true, options: ['comment' => '原始请求对象'])]
     private ?array $requestOptions = null;
 
-    #[IndexColumn]
-    #[CreateTimeColumn]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true, options: ['comment' => '创建时间'])]
-    private ?\DateTimeInterface $createTime = null;
-
-    #[CreatedByColumn]
-    #[ORM\Column(nullable: true, options: ['comment' => '创建人'])]
-    private ?string $createdBy = null;
-
     #[CreateIpColumn]
     #[ORM\Column(length: 45, nullable: true, options: ['comment' => '创建时IP'])]
     private ?string $createdFromIp = null;
@@ -69,7 +62,7 @@ class HttpRequestLog
         if ($this->id === null) {
             return 'New HTTP Request Log';
         }
-        
+
         return sprintf('HTTP Request Log #%d - %s', $this->id, $this->requestUrl ?? 'Unknown URL');
     }
 
@@ -114,7 +107,6 @@ class HttpRequestLog
         return $this;
     }
 
-    #[ExportColumn(title: '状态')]
     public function renderStatus(): string
     {
         return $this->getException() !== null ? '异常' : '成功';
@@ -164,28 +156,6 @@ class HttpRequestLog
         $this->requestOptions = $requestOptions;
 
         return $this;
-    }
-
-    public function setCreateTime(?\DateTimeInterface $createdAt): self
-    {
-        $this->createTime = $createdAt;
-
-        return $this;
-    }
-
-    public function getCreateTime(): ?\DateTimeInterface
-    {
-        return $this->createTime;
-    }
-
-    public function setCreatedBy(?string $createdBy): void
-    {
-        $this->createdBy = $createdBy;
-    }
-
-    public function getCreatedBy(): ?string
-    {
-        return $this->createdBy;
     }
 
     public function getCreatedFromIp(): ?string

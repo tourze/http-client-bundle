@@ -18,7 +18,6 @@ class HttpClientBundleTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var ContainerBuilder&MockObject $container */
         $this->container = $this->createMock(ContainerBuilder::class);
         $this->bundle = new HttpClientBundle();
     }

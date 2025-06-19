@@ -22,9 +22,7 @@ class LockHttpClientTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var HttpClientInterface&MockObject $innerClient */
         $this->innerClient = $this->createMock(HttpClientInterface::class);
-        /** @var LockFactory&MockObject $lockFactory */
         $this->lockFactory = $this->createMock(LockFactory::class);
         $this->client = new LockHttpClient($this->innerClient, $this->lockFactory);
     }

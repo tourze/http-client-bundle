@@ -29,12 +29,12 @@ class CacheRequestTest extends TestCase
                 return '/api/test';
             }
 
-            public function getRequestOptions(): ?array
+            public function getRequestOptions(): array
             {
                 return [];
             }
 
-            public function getRequestMethod(): ?string
+            public function getRequestMethod(): string
             {
                 return 'GET';
             }

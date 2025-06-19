@@ -20,9 +20,7 @@ class HttpClientExceptionTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var RequestInterface&MockObject $request */
         $this->request = $this->createMock(RequestInterface::class);
-        /** @var ResponseInterface&MockObject $response */
         $this->response = $this->createMock(ResponseInterface::class);
 
         $this->response->method('getContent')

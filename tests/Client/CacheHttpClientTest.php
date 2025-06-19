@@ -21,9 +21,7 @@ class CacheHttpClientTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var HttpClientInterface&MockObject $innerClient */
         $this->innerClient = $this->createMock(HttpClientInterface::class);
-        /** @var CacheInterface&MockObject $cache */
         $this->cache = $this->createMock(CacheInterface::class);
         $this->client = new CacheHttpClient($this->innerClient, $this->cache);
     }

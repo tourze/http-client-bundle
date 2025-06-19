@@ -100,21 +100,14 @@ class ApiClientTest extends TestCase
 
     protected function setUp(): void
     {
-        /** @var SmartHttpClient&MockObject $httpClient */
         $this->httpClient = $this->createMock(SmartHttpClient::class);
-        /** @var CacheInterface&MockObject $cache */
         $this->cache = $this->createMock(CacheInterface::class);
-        /** @var EventDispatcherInterface&MockObject $eventDispatcher */
         $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        /** @var LockFactory&MockObject $lockFactory */
         $this->lockFactory = $this->createMock(LockFactory::class);
-        /** @var DoctrineService&MockObject $doctrineService */
         $this->doctrineService = $this->createMock(DoctrineService::class);
-        /** @var LoggerInterface&MockObject $logger */
         $this->logger = $this->createMock(LoggerInterface::class);
 
         // 创建容器 mock
-        /** @var ContainerInterface&MockObject $container */
         $this->container = $this->createMock(ContainerInterface::class);
         $this->container->method('get')
             ->willReturnCallback(function ($service) {

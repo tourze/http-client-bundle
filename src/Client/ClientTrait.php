@@ -4,6 +4,9 @@ namespace HttpClientBundle\Client;
 
 use HttpClientBundle\Request\RequestInterface;
 
+/**
+ * @phpstan-ignore trait.unused
+ */
 trait ClientTrait
 {
     /**
