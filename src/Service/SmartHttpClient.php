@@ -19,8 +19,8 @@ use Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface;
  * 因为我们部署环境不一定那么固定，所以自己覆盖了默认的http client，自己包装一层
  * HTTP Client 需要协程处理，防止共用了 curl 实例
  */
-#[AutoconfigureTag('as-coroutine')]
-#[AsAlias(HttpClientInterface::class)]
+#[AutoconfigureTag(name: 'as-coroutine')]
+#[AsAlias(id: HttpClientInterface::class)]
 class SmartHttpClient implements HttpClientInterface
 {
     private ?HttpClientInterface $inner = null;

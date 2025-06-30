@@ -3,6 +3,7 @@
 namespace HttpClientBundle\EventSubscriber;
 
 use HttpClientBundle\Event\RequestEvent;
+use HttpClientBundle\Exception\LocalDomainRequestException;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -29,7 +30,7 @@ class CheckLocalDomainSubscriber
         $url = $event->getUrl();
         $currentHost = $request->getSchemeAndHttpHost();
         if ($currentHost === $url || str_starts_with($url, $currentHost)) {
-            throw new \LogicException("在开发阶段，为了避免HTTP请求时可能造成的进程阻塞，请不要使用 HttpClient 请求 {$currentHost} 相关地址。");
+            throw new LocalDomainRequestException("在开发阶段，为了避免HTTP请求时可能造成的进程阻塞，请不要使用 HttpClient 请求 {$currentHost} 相关地址。");
         }
     }
 }

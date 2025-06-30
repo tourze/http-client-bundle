@@ -3,6 +3,7 @@
 namespace HttpClientBundle\Client;
 
 use HttpClientBundle\Exception\LockTimeoutHttpClientException;
+use HttpClientBundle\Exception\UnsupportedOperationException;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -46,7 +47,7 @@ class LockHttpClient implements HttpClientInterface
 
     public function stream(iterable|ResponseInterface $responses, ?float $timeout = null): ResponseStreamInterface
     {
-        throw new \RuntimeException('Not implemented');
+        throw new UnsupportedOperationException('Not implemented');
     }
 
     public function withOptions(array $options): static

@@ -2,6 +2,7 @@
 
 namespace HttpClientBundle\Client;
 
+use HttpClientBundle\Exception\UnsupportedOperationException;
 use HttpClientBundle\Response\CacheResponse;
 use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -48,7 +49,7 @@ class CacheHttpClient implements HttpClientInterface
 
     public function stream(iterable|ResponseInterface $responses, ?float $timeout = null): ResponseStreamInterface
     {
-        throw new \RuntimeException('Not implemented');
+        throw new UnsupportedOperationException('Not implemented');
     }
 
     public function withOptions(array $options): static

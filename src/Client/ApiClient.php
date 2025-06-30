@@ -49,7 +49,7 @@ use Yiisoft\Json\Json;
 /**
  * 通用的客户端实现
  */
-#[AutoconfigureTag('monolog.logger', ['channel' => 'api_client'])]
+#[AutoconfigureTag(name: 'monolog.logger', attributes: ['channel' => 'api_client'])]
 abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
 {
     use ServiceMethodsSubscriberTrait;
@@ -139,7 +139,7 @@ abstract class ApiClient implements CheckInterface, ServiceSubscriberInterface
 
         $uri = Uri::new($baseUrl);
         $host = $uri->getHost();
-        $port = $uri->getPort() ?: ('https' === $uri->getScheme() ? 443 : 80); // 基本都是web服务
+        $port = $uri->getPort() ?? ('https' === $uri->getScheme() ? 443 : 80); // 基本都是web服务
 
         $ip = $this->getHttpClient()->refreshDomainResolveCache($host);
         if ($ip === $host) {
