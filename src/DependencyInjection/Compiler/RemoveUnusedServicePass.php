@@ -14,8 +14,13 @@ class RemoveUnusedServicePass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         foreach ($container->getServiceIds() as $serviceId) {
-            $definition = $container->findDefinition($serviceId);
-            if (empty($definition->getClass())) {
+            try {
+                $definition = $container->findDefinition($serviceId);
+            } catch (\Throwable) {
+                continue;
+            }
+
+            if (null === $definition->getClass()) {
                 continue;
             }
 

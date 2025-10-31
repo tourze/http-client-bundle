@@ -4,12 +4,14 @@ namespace HttpClientBundle\EventSubscriber;
 
 use HttpClientBundle\Event\RequestEvent;
 use HttpClientBundle\Exception\LocalDomainRequestException;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * 有时候开发会搞混乱本地开发时的请求次序，为此特地加一个检测
  */
+#[Autoconfigure(public: true)]
 class CheckLocalDomainSubscriber
 {
     public function __construct(private readonly RequestStack $requestStack)
@@ -19,7 +21,7 @@ class CheckLocalDomainSubscriber
     #[AsEventListener]
     public function checkLocalDomains(RequestEvent $event): void
     {
-        if ('prod' === $_ENV['APP_ENV']) {
+        if ('prod' === ($_ENV['APP_ENV'] ?? null)) {
             return;
         }
         $request = $this->requestStack->getMainRequest();

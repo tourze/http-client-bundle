@@ -4,36 +4,62 @@ namespace HttpClientBundle\Tests\Exception;
 
 use HttpClientBundle\Exception\HttpClientException;
 use HttpClientBundle\Request\RequestInterface;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Tourze\PHPUnitBase\AbstractExceptionTestCase;
 
 /**
- * @covers \HttpClientBundle\Exception\HttpClientException
+ * @internal
  */
-class HttpClientExceptionTest extends TestCase
+#[CoversClass(HttpClientException::class)]
+final class HttpClientExceptionTest extends AbstractExceptionTestCase
 {
-    private RequestInterface|MockObject $request;
-    private ResponseInterface|MockObject $response;
+    private RequestInterface $request;
+
+    private ResponseInterface $response;
+
     private string $message = 'Test error message';
+
     private int $code = 500;
 
     protected function setUp(): void
     {
-        $this->request = $this->createMock(RequestInterface::class);
+        parent::setUp();
+        // RequestInterface 是简单的数据对象接口，使用匿名类
+        $this->request = new class implements RequestInterface {
+            public function getRequestPath(): string
+            {
+                return '/test';
+            }
+
+            public function getRequestOptions(): ?array
+            {
+                return null;
+            }
+
+            public function getRequestMethod(): string
+            {
+                return 'GET';
+            }
+        };
+
         $this->response = $this->createMock(ResponseInterface::class);
 
         $this->response->method('getContent')
             ->with(false)
-            ->willReturn('{"error": "server error"}');
+            ->willReturn('{"error": "server error"}')
+        ;
 
         $this->response->method('getInfo')
-            ->willReturn(['url' => 'https://example.com/api']);
+            ->willReturn(['url' => 'https://example.com/api'])
+        ;
     }
 
     public function testConstructor(): void
     {
-        $exception = new HttpClientException($this->request, $this->response, $this->message, $this->code);
+        // 创建抽象类的具体实现用于测试
+        $exception = new class($this->request, $this->response, $this->message, $this->code) extends HttpClientException {
+        };
 
         $this->assertEquals($this->message, $exception->getMessage());
         $this->assertEquals($this->code, $exception->getCode());
@@ -41,7 +67,9 @@ class HttpClientExceptionTest extends TestCase
 
     public function testGetContext(): void
     {
-        $exception = new HttpClientException($this->request, $this->response, $this->message, $this->code);
+        // 创建抽象类的具体实现用于测试
+        $exception = new class($this->request, $this->response, $this->message, $this->code) extends HttpClientException {
+        };
 
         $expectedContext = [
             'content' => '{"error": "server error"}',
@@ -54,7 +82,9 @@ class HttpClientExceptionTest extends TestCase
 
     public function testSetContext(): void
     {
-        $exception = new HttpClientException($this->request, $this->response, $this->message, $this->code);
+        // 创建抽象类的具体实现用于测试
+        $exception = new class($this->request, $this->response, $this->message, $this->code) extends HttpClientException {
+        };
 
         $newContext = ['test' => 'value'];
         $exception->setContext($newContext);

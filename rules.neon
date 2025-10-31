@@ -1,0 +1,2 @@
+rules:
+    - HttpClientBundle\PHPStan\Rules\RequestTestMustExtendBaseRule

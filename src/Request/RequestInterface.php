@@ -11,6 +11,7 @@ interface RequestInterface
 
     /**
      * 接口发送数据
+     * @return array<array-key, mixed>|null
      */
     public function getRequestOptions(): ?array;
 

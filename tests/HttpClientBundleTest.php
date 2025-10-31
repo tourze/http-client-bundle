@@ -1,34 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace HttpClientBundle\Tests;
 
-use HttpClientBundle\DependencyInjection\Compiler\RemoveUnusedServicePass;
 use HttpClientBundle\HttpClientBundle;
-use PHPUnit\Framework\MockObject\MockObject;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractBundleTestCase;
 
 /**
- * @covers \HttpClientBundle\HttpClientBundle
+ * @internal
  */
-class HttpClientBundleTest extends TestCase
+#[CoversClass(HttpClientBundle::class)]
+#[RunTestsInSeparateProcesses]
+final class HttpClientBundleTest extends AbstractBundleTestCase
 {
-    private HttpClientBundle $bundle;
-    private ContainerBuilder|MockObject $container;
-
-    protected function setUp(): void
-    {
-        $this->container = $this->createMock(ContainerBuilder::class);
-        $this->bundle = new HttpClientBundle();
-    }
-
-    public function testBuild(): void
-    {
-        // 验证 build 方法调用了父类的 build 方法并添加了编译器传递
-        $this->container->expects($this->once())
-            ->method('addCompilerPass')
-            ->with($this->isInstanceOf(RemoveUnusedServicePass::class));
-
-        $this->bundle->build($this->container);
-    }
 }

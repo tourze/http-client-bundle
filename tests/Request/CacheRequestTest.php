@@ -4,12 +4,13 @@ namespace HttpClientBundle\Tests\Request;
 
 use HttpClientBundle\Request\CacheRequest;
 use HttpClientBundle\Request\RequestInterface;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \HttpClientBundle\Request\CacheRequest
+ * @internal
  */
-class CacheRequestTest extends TestCase
+#[CoversClass(CacheRequest::class)]
+final class CacheRequestTest extends RequestTestCase
 {
     public function testCacheRequestImplementation(): void
     {
@@ -19,9 +20,8 @@ class CacheRequestTest extends TestCase
         $request = new class($cacheKey, $cacheDuration) implements CacheRequest, RequestInterface {
             public function __construct(
                 private readonly string $key,
-                private readonly int    $duration
-            )
-            {
+                private readonly int $duration,
+            ) {
             }
 
             public function getRequestPath(): string
@@ -29,6 +29,7 @@ class CacheRequestTest extends TestCase
                 return '/api/test';
             }
 
+            /** @phpstan-ignore-next-line method.childReturnType */
             public function getRequestOptions(): array
             {
                 return [];

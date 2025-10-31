@@ -2,33 +2,52 @@
 
 [English](README.md) | [中文](README.zh-CN.md)
 
-[![Latest Version](https://img.shields.io/packagist/v/tourze/http-client-bundle.svg?style=flat-square)](https://packagist.org/packages/tourze/http-client-bundle)
-[![Build Status](https://img.shields.io/travis/tourze/http-client-bundle/master.svg?style=flat-square)](https://travis-ci.org/tourze/http-client-bundle)
-[![Quality Score](https://img.shields.io/scrutinizer/g/tourze/http-client-bundle.svg?style=flat-square)](https://scrutinizer-ci.com/g/tourze/http-client-bundle)
-[![Total Downloads](https://img.shields.io/packagist/dt/tourze/http-client-bundle.svg?style=flat-square)](https://packagist.org/packages/tourze/http-client-bundle)
+[![PHP Version](https://img.shields.io/badge/php-%5E8.1-blue?style=flat-square)](https://php.net)
+[![Symfony Version](https://img.shields.io/badge/symfony-%5E6.4-green?style=flat-square)](https://symfony.com)
+[![License](https://img.shields.io/badge/license-MIT-brightgreen?style=flat-square)](LICENSE)
+[![Build Status](https://img.shields.io/github/workflow/status/tourze/http-client-bundle/CI?style=flat-square)]
+(https://github.com/tourze/http-client-bundle/actions)
+[![Code Coverage](https://img.shields.io/codecov/c/github/tourze/http-client-bundle?style=flat-square)]
+(https://codecov.io/gh/tourze/http-client-bundle)
 
-A powerful Symfony HTTP client bundle with smart implementation selection, request caching, distributed locking, retry, detailed logging, coroutine support, DNS cache, async requests, and event-driven extensibility.
+A powerful Symfony HTTP client bundle with smart implementation selection, 
+request caching, distributed locking, retry mechanisms, detailed logging, 
+coroutine support, DNS cache, async requests, and event-driven extensibility.
 
----
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Configuration](#configuration)
+- [Dependencies](#dependencies)
+- [Advanced Usage](#advanced-usage)
+- [Security](#security)
+- [Documentation](#documentation)
+- [Contribution](#contribution)
+- [License](#license)
 
 ## Features
 
-- Smart HTTP client, auto-selects best implementation (curl/native)
+- Smart HTTP client with auto-selection of best implementation (curl/native)
 - Request caching for efficient API data retrieval
 - Distributed lock to prevent duplicate requests
-- Automatic retry for transient errors
-- Full request/response logging
+- Automatic retry mechanisms for transient errors
+- Full request/response logging with detailed metrics
 - Coroutine support (prevents curl instance sharing)
-- DNS resolution cache
-- Asynchronous request support
-- Event system for request/response hooks
+- DNS resolution caching for improved performance
+- Asynchronous request support with event-driven architecture
+- Event system for request/response hooks and middleware
+- SSL certificate validation and health checks
 
 ## Installation
+
+### Requirements
 
 - PHP >= 8.1
 - Symfony >= 6.4
 
-Install via Composer:
+### Install via Composer
 
 ```bash
 composer require tourze/http-client-bundle
@@ -36,9 +55,18 @@ composer require tourze/http-client-bundle
 
 ## Quick Start
 
-### 1. Create an API Client
+### 1. Enable the Bundle
 
-Extend the `ApiClient` class and implement required methods:
+Add to `config/bundles.php`:
+
+```php
+return [
+    // ... other bundles
+    HttpClientBundle\HttpClientBundle::class => ['all' => true],
+];
+```
+
+### 2. Create an API Client
 
 ```php
 use HttpClientBundle\Client\ApiClient;
@@ -50,126 +78,132 @@ class MyApiClient extends ApiClient
     {
         return 'https://api.example.com/' . $request->getRequestPath();
     }
+    
     protected function getRequestMethod(RequestInterface $request): string
     {
-        return 'POST';
+        return $request->getRequestMethod() ?? 'GET';
     }
 }
 ```
 
-### 2. Create a Request Class
+### 3. Create Request Classes
 
 #### Basic Request
-
 ```php
 use HttpClientBundle\Request\RequestInterface;
 
 class MyApiRequest implements RequestInterface
 {
-    private string $path;
-    public function __construct(string $path)
-    {
-        $this->path = $path;
-    }
+    public function __construct(private string $path) {}
+    
     public function getRequestPath(): string
     {
         return $this->path;
     }
+    
     public function getRequestOptions(): ?array
     {
-        return null;
+        return ['timeout' => 30];
     }
+    
     public function getRequestMethod(): ?string
     {
-        return null;
+        return 'GET';
     }
 }
 ```
 
 #### Cached Request
-
 ```php
 use HttpClientBundle\Request\CacheRequest;
+
 class CachedApiRequest implements RequestInterface, CacheRequest
 {
     public function getCacheKey(): string
     {
-        return 'my-api-cache-key';
+        return 'api-cache-' . md5($this->getRequestPath());
     }
+    
     public function getCacheDuration(): int
     {
-        return 3600; // cache for 1 hour
+        return 3600; // 1 hour
     }
 }
 ```
 
-#### Request with Distributed Lock
+## Configuration
+
+### Basic Configuration
+
+```yaml
+# config/packages/http_client_bundle.yaml
+http_client:
+    logging:
+        enabled: true
+        persist_days: 7
+    cache:
+        default_ttl: 3600
+    lock:
+        timeout: 30
+    retry:
+        max_attempts: 3
+        delay: 1000
+```
+
+### Service Configuration
+
+```yaml
+# config/services.yaml
+services:
+    app.my_api_client:
+        class: App\Client\MyApiClient
+        arguments:
+            $httpClient: '@http_client_bundle.smart_http_client'
+            $cache: '@cache.app'
+            $lockFactory: '@lock.factory'
+```
+
+## Dependencies
+
+This bundle depends on several core packages:
+
+### Core Dependencies
+- `symfony/http-client`: HTTP client implementation
+- `symfony/cache`: Caching functionality
+- `symfony/lock`: Distributed locking
+- `symfony/event-dispatcher`: Event system
+- `doctrine/orm`: Entity persistence
+- `psr/log`: Logging interface
+
+### Optional Dependencies
+- `tourze/symfony-aop-async-bundle`: Async request support
+- `tourze/doctrine-async-bundle`: Async database operations
+- `spatie/ssl-certificate`: SSL certificate validation
+
+## Advanced Usage
+
+### Health Checks
+
+The bundle provides built-in health check functionality:
 
 ```php
-use HttpClientBundle\Request\LockRequest;
-class LockedApiRequest implements RequestInterface, LockRequest
+class MyApiClient extends ApiClient implements CheckInterface
 {
-    public function getLockKey(): string
+    public function check(): ResultInterface
     {
-        return 'my-api-lock-key';
+        // Automatic SSL and connectivity checks
+        return parent::check();
     }
 }
 ```
 
-#### Auto-Retry Request
-
-```php
-use HttpClientBundle\Request\AutoRetryRequest;
-class RetryableApiRequest implements RequestInterface, AutoRetryRequest
-{
-    public function getMaxRetries(): int
-    {
-        return 3; // maximum 3 retries
-    }
-}
-```
-
-### 3. Send a Request
-
-```php
-class MyService
-{
-    public function __construct(private MyApiClient $client) {}
-    public function callApi(): array
-    {
-        $request = new MyApiRequest('endpoint');
-        $response = $this->client->request($request);
-        return $response->toArray();
-    }
-}
-```
-
-### 4. Asynchronous Requests
-
-Use the `@Async` attribute to enable async requests:
-
-```php
-use Tourze\Symfony\AopAsyncBundle\Attribute\Async;
-class MyAsyncService
-{
-    public function __construct(private MyApiClient $client) {}
-    #[Async]
-    public function callApiAsync(): void
-    {
-        $request = new MyApiRequest('endpoint');
-        $this->client->request($request);
-    }
-}
-```
-
-### 5. Event Listeners
-
-You can listen to request and response events:
+### Event Listeners
 
 ```php
 use HttpClientBundle\Event\RequestEvent;
 use HttpClientBundle\Event\ResponseEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
 class ApiEventSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents(): array
@@ -179,38 +213,120 @@ class ApiEventSubscriber implements EventSubscriberInterface
             ResponseEvent::class => 'onResponse',
         ];
     }
+    
     public function onRequest(RequestEvent $event): void
     {
-        // handle request event
+        // Add authentication headers
+        $options = $event->getOptions();
+        $options['headers']['Authorization'] = 'Bearer ' . $this->getToken();
+        $event->setOptions($options);
     }
+    
     public function onResponse(ResponseEvent $event): void
     {
-        // handle response event
+        // Log response metrics
+        $this->logger->info('API Response', [
+            'status_code' => $event->getResponse()->getStatusCode(),
+            'duration' => $event->getDuration(),
+        ]);
+    }
+}
+```
+
+### Coroutine-Safe Usage
+
+For use with Swoole or ReactPHP:
+
+```php
+use HttpClientBundle\Client\CoroutineSafeHttpClient;
+
+class MyCoroutineApiClient extends ApiClient
+{
+    protected function createHttpClient(): HttpClientInterface
+    {
+        return new CoroutineSafeHttpClient($this->getInnerHttpClient());
+    }
+}
+```
+
+## Security
+
+### SSL Certificate Validation
+
+The bundle automatically validates SSL certificates:
+
+```php
+// Automatic SSL validation in health checks
+$result = $apiClient->check();
+if ($result instanceof Success) {
+    // SSL certificate is valid
+}
+```
+
+### Request Signing
+
+Implement request signing for API security:
+
+```php
+class SignedApiRequest implements RequestInterface
+{
+    public function getRequestOptions(): ?array
+    {
+        $timestamp = time();
+        $signature = hash_hmac('sha256', $this->getBody() . $timestamp, $this->secretKey);
+        
+        return [
+            'headers' => [
+                'X-Timestamp' => $timestamp,
+                'X-Signature' => $signature,
+            ],
+        ];
+    }
+}
+```
+
+### Rate Limiting
+
+Use distributed locks for rate limiting:
+
+```php
+class RateLimitedRequest implements RequestInterface, LockRequest
+{
+    public function getLockKey(): string
+    {
+        return 'rate_limit_' . $this->getUserId();
     }
 }
 ```
 
 ## Documentation
 
-- API docs: See source code for detailed interfaces and advanced usage.
-- Configurations: Customize caching, locking, retry, and async via Symfony config.
-- [Workflow Diagram](WORKFLOW.md): See the full request processing flow.
-- [Entity Design](ENTITY_DESIGN.zh-CN.md): Database entity details.
+- [API Reference](docs/api.md): Complete API documentation
+- [Configuration Guide](docs/configuration.md): Detailed configuration options
+- [Performance Tuning](docs/performance.md): Optimization guidelines
+- [Troubleshooting](docs/troubleshooting.md): Common issues and solutions
 
 ## Contribution
 
-1. Fork the repo, create a feature branch.
-2. Submit issues and pull requests with clear descriptions.
-3. Follow PSR coding standards and ensure tests pass (`phpunit`).
+1. Fork the repository and create a feature branch
+2. Write tests for new functionality
+3. Ensure all tests pass: `vendor/bin/phpunit`
+4. Check code quality: `vendor/bin/phpstan analyse`
+5. Submit a pull request with clear description
+
+### Development Setup
+
+```bash
+git clone https://github.com/tourze/http-client-bundle
+cd http-client-bundle
+composer install
+vendor/bin/phpunit
+```
 
 ## License
 
-MIT License. See [LICENSE](../../LICENSE).
-
-## Author
-
-tourze <https://github.com/tourze>
+MIT License. See [LICENSE](LICENSE) file for details.
 
 ## Changelog
 
-See [releases](https://github.com/tourze/http-client-bundle/releases) for version history and upgrade notes.
+See [CHANGELOG.md](CHANGELOG.md) for version history and upgrade notes.

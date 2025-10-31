@@ -19,6 +19,7 @@ abstract class ApiRequest implements \Stringable, RequestInterface, LogDataInter
      * 接口发送数据
      *
      * @see https://symfony.com/doc/current/http_client.html
+     * @return array<array-key, mixed>|null
      */
     abstract public function getRequestOptions(): ?array;
 
@@ -40,10 +41,13 @@ abstract class ApiRequest implements \Stringable, RequestInterface, LogDataInter
         return Json::encode($this->generateLogData());
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function generateLogData(): ?array
     {
         return [
-            '_className' => static::class,
+            '_className' => get_class($this),
             'path' => $this->getRequestPath(),
             'method' => $this->getRequestMethod(),
             'payload' => $this->getRequestOptions(),

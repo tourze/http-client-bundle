@@ -19,13 +19,22 @@ class HttpClientRequest implements RequestInterface
         $this->requestPath = $requestPath;
     }
 
+    /**
+     * @var array<string, mixed>|null
+     */
     private ?array $requestOptions = null;
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         return $this->requestOptions;
     }
 
+    /**
+     * @param array<string, mixed>|null $requestOptions
+     */
     public function setRequestOptions(?array $requestOptions): void
     {
         $this->requestOptions = $requestOptions;

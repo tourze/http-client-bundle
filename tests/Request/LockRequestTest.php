@@ -4,12 +4,13 @@ namespace HttpClientBundle\Tests\Request;
 
 use HttpClientBundle\Request\LockRequest;
 use HttpClientBundle\Request\RequestInterface;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \HttpClientBundle\Request\LockRequest
+ * @internal
  */
-class LockRequestTest extends TestCase
+#[CoversClass(LockRequest::class)]
+final class LockRequestTest extends RequestTestCase
 {
     public function testLockRequestImplementation(): void
     {
@@ -17,9 +18,8 @@ class LockRequestTest extends TestCase
 
         $request = new class($lockKey) implements LockRequest, RequestInterface {
             public function __construct(
-                private readonly string $key
-            )
-            {
+                private readonly string $key,
+            ) {
             }
 
             public function getRequestPath(): string
@@ -27,6 +27,7 @@ class LockRequestTest extends TestCase
                 return '/api/test';
             }
 
+            /** @phpstan-ignore-next-line method.childReturnType */
             public function getRequestOptions(): array
             {
                 return [];

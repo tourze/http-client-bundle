@@ -2,6 +2,7 @@
 
 namespace HttpClientBundle;
 
+use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use HttpClientBundle\DependencyInjection\Compiler\RemoveUnusedServicePass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -27,6 +28,7 @@ class HttpClientBundle extends Bundle implements BundleDependencyInterface
     public static function getBundleDependencies(): array
     {
         return [
+            DoctrineBundle::class => ['all' => true],
             DoctrineAsyncInsertBundle::class => ['all' => true],
             DoctrineIndexedBundle::class => ['all' => true],
             DoctrineIpBundle::class => ['all' => true],

@@ -28,13 +28,22 @@ trait RequestTrait
         $this->method = $method;
     }
 
+    /**
+     * @var array<array-key, mixed>
+     */
     private array $options;
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
+    /**
+     * @param array<array-key, mixed> $options
+     */
     public function setOptions(array $options): void
     {
         $this->options = $options;

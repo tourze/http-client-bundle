@@ -4,12 +4,13 @@ namespace HttpClientBundle\Tests\Request;
 
 use HttpClientBundle\Request\AutoRetryRequest;
 use HttpClientBundle\Request\RequestInterface;
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \HttpClientBundle\Request\AutoRetryRequest
+ * @internal
  */
-class AutoRetryRequestTest extends TestCase
+#[CoversClass(AutoRetryRequest::class)]
+final class AutoRetryRequestTest extends RequestTestCase
 {
     public function testGetMaxRetries(): void
     {
@@ -24,6 +25,7 @@ class AutoRetryRequestTest extends TestCase
                 return '/api/test';
             }
 
+            /** @phpstan-ignore-next-line method.childReturnType */
             public function getRequestOptions(): array
             {
                 return [];

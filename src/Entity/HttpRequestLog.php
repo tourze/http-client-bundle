@@ -4,8 +4,9 @@ namespace HttpClientBundle\Entity;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 use Tourze\DoctrineIndexedBundle\Attribute\IndexColumn;
-use Tourze\DoctrineIpBundle\Attribute\CreateIpColumn;
+use Tourze\DoctrineIpBundle\Traits\CreatedFromIpAware;
 use Tourze\DoctrineTimestampBundle\Traits\CreateTimeAware;
 use Tourze\DoctrineUserAgentBundle\Attribute\CreateUserAgentColumn;
 use Tourze\DoctrineUserBundle\Traits\CreatedByAware;
@@ -21,45 +22,56 @@ class HttpRequestLog
 {
     use CreateTimeAware;
     use CreatedByAware;
+    use CreatedFromIpAware;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: Types::INTEGER, options: ['comment' => 'ID'])]
-    private ?int $id = 0;
+    private ?int $id = null;
 
+    #[Assert\NotBlank]
+    #[Assert\Url]
+    #[Assert\Length(max: 512)]
     #[IndexColumn]
     #[ORM\Column(length: 512, options: ['comment' => '请求链接'])]
     private ?string $requestUrl = null;
 
+    #[Assert\Length(max: 20)]
     #[ORM\Column(length: 20, nullable: true, options: ['comment' => '请求方式'])]
     private ?string $method = null;
 
+    #[Assert\Length(max: 65535)]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '请求内容'])]
     private ?string $content = null;
 
+    #[Assert\Length(max: 65535)]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '响应内容'])]
     private ?string $response = null;
 
+    #[Assert\Length(max: 65535)]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '异常'])]
     private ?string $exception = null;
 
+    #[Assert\Length(max: 15)]
+    #[Assert\Regex(pattern: '/^\d+\.\d{2}$/', message: 'Duration must be a decimal number with 2 decimal places')]
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2, nullable: true, options: ['comment' => '执行时长'])]
     private ?string $stopwatchDuration = null;
 
-    #[ORM\Column(nullable: true, options: ['comment' => '原始请求对象'])]
+    /**
+     * @var array<array-key, mixed>|null
+     */
+    #[Assert\Type(type: 'array')]
+    #[ORM\Column(type: Types::JSON, nullable: true, options: ['comment' => '原始请求对象'])]
     private ?array $requestOptions = null;
 
-    #[CreateIpColumn]
-    #[ORM\Column(length: 45, nullable: true, options: ['comment' => '创建时IP'])]
-    private ?string $createdFromIp = null;
-
+    #[Assert\Length(max: 65535)]
     #[CreateUserAgentColumn]
     #[ORM\Column(type: Types::TEXT, nullable: true, options: ['comment' => '创建时UA'])]
     private ?string $createdFromUa = null;
 
     public function __toString(): string
     {
-        if ($this->id === null) {
+        if (null === $this->id) {
             return 'New HTTP Request Log';
         }
 
@@ -76,11 +88,9 @@ class HttpRequestLog
         return $this->content;
     }
 
-    public function setContent(string $content): self
+    public function setContent(string $content): void
     {
         $this->content = $content;
-
-        return $this;
     }
 
     public function getResponse(): ?string
@@ -88,11 +98,9 @@ class HttpRequestLog
         return $this->response;
     }
 
-    public function setResponse(?string $response): self
+    public function setResponse(?string $response): void
     {
         $this->response = $response;
-
-        return $this;
     }
 
     public function getException(): ?string
@@ -100,16 +108,14 @@ class HttpRequestLog
         return $this->exception;
     }
 
-    public function setException(?string $exception): self
+    public function setException(?string $exception): void
     {
         $this->exception = $exception;
-
-        return $this;
     }
 
     public function renderStatus(): string
     {
-        return $this->getException() !== null ? '异常' : '成功';
+        return null !== $this->getException() ? '异常' : '成功';
     }
 
     public function getRequestUrl(): ?string
@@ -117,11 +123,9 @@ class HttpRequestLog
         return $this->requestUrl;
     }
 
-    public function setRequestUrl(string $requestUrl): self
+    public function setRequestUrl(string $requestUrl): void
     {
         $this->requestUrl = $requestUrl;
-
-        return $this;
     }
 
     public function getMethod(): ?string
@@ -129,11 +133,9 @@ class HttpRequestLog
         return $this->method;
     }
 
-    public function setMethod(?string $method): self
+    public function setMethod(?string $method): void
     {
         $this->method = $method;
-
-        return $this;
     }
 
     public function getStopwatchDuration(): ?string
@@ -146,26 +148,20 @@ class HttpRequestLog
         $this->stopwatchDuration = $stopwatchDuration;
     }
 
+    /**
+     * @return array<array-key, mixed>|null
+     */
     public function getRequestOptions(): ?array
     {
         return $this->requestOptions;
     }
 
-    public function setRequestOptions(?array $requestOptions): static
+    /**
+     * @param array<array-key, mixed>|null $requestOptions
+     */
+    public function setRequestOptions(?array $requestOptions): void
     {
         $this->requestOptions = $requestOptions;
-
-        return $this;
-    }
-
-    public function getCreatedFromIp(): ?string
-    {
-        return $this->createdFromIp;
-    }
-
-    public function setCreatedFromIp(?string $createdFromIp): void
-    {
-        $this->createdFromIp = $createdFromIp;
     }
 
     public function getCreatedFromUa(): ?string
@@ -173,10 +169,8 @@ class HttpRequestLog
         return $this->createdFromUa;
     }
 
-    public function setCreatedFromUa(?string $createdFromUa): static
+    public function setCreatedFromUa(?string $createdFromUa): void
     {
         $this->createdFromUa = $createdFromUa;
-
-        return $this;
     }
 }

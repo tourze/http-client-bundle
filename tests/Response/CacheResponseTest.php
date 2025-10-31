@@ -3,21 +3,34 @@
 namespace HttpClientBundle\Tests\Response;
 
 use HttpClientBundle\Response\CacheResponse;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \HttpClientBundle\Response\CacheResponse
+ * @internal
  */
-class CacheResponseTest extends TestCase
+#[CoversClass(CacheResponse::class)]
+final class CacheResponseTest extends TestCase
 {
     private CacheResponse $response;
+
     private int $statusCode = 200;
+
+    /**
+     * @var array<string, list<string>>
+     */
     private array $headers = ['Content-Type' => ['application/json']];
+
     private string $content = '{"data": "test"}';
+
+    /**
+     * @var array<string, mixed>
+     */
     private array $info = ['url' => 'https://example.com/api/test'];
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->response = new CacheResponse(
             $this->statusCode,
             $this->headers,
@@ -65,8 +78,8 @@ class CacheResponseTest extends TestCase
 
     public function testCancel(): void
     {
-        // 这个方法不执行任何操作，只是确保能调用不出错
+        // CacheResponse 的 cancel 方法应该不抛出异常，因为它是一个静态响应
+        $this->expectNotToPerformAssertions();
         $this->response->cancel();
-        $this->assertTrue(true); // 断言方法能执行完毕
     }
 }

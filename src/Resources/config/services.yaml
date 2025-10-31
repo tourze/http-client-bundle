@@ -9,6 +9,8 @@ services:
     resource: '../../Client/'
   HttpClientBundle\Command\:
     resource: '../../Command/'
+  HttpClientBundle\Controller\:
+    resource: '../../Controller/'
   HttpClientBundle\EventSubscriber\:
     resource: '../../EventSubscriber/'
   HttpClientBundle\Service\:

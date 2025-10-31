@@ -2,22 +2,22 @@
 
 namespace HttpClientBundle\Response;
 
-use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * 缓存后的结果
  */
-#[When(env: 'never')]
-class CacheResponse implements ResponseInterface
+readonly class CacheResponse implements ResponseInterface
 {
+    /**
+     * @param array<string, list<string>> $headers
+     */
     public function __construct(
-        private readonly int $statusCode,
-        private readonly array $headers,
-        private readonly string $content,
-        private readonly mixed $info,
-    )
-    {
+        private int $statusCode,
+        private array $headers,
+        private string $content,
+        private mixed $info,
+    ) {
     }
 
     public function getStatusCode(): int
@@ -50,6 +50,9 @@ class CacheResponse implements ResponseInterface
         // 没得close
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function toArray(bool $throw = true): array
     {
         return [
