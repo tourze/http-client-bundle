@@ -32,7 +32,7 @@
     "symfony/lock": "^7.3",
     "symfony/service-contracts": "^3.6",
     "symfony/yaml": "^7.3",
-    "tourze/backtrace-helper": "0.1.*",
+    "tourze/backtrace-helper": "1.*",
     "tourze/bundle-dependency": "1.*",
     "tourze/doctrine-async-insert-bundle": "0.1.*",
     "tourze/doctrine-indexed-bundle": "0.0.*",
