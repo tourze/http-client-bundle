@@ -4,6 +4,7 @@ namespace HttpClientBundle\Tests\Request;
 
 use HttpClientBundle\Request\CacheRequest;
 use HttpClientBundle\Request\RequestInterface;
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**

@@ -3,6 +3,7 @@
 namespace HttpClientBundle\Tests\Request;
 
 use HttpClientBundle\Request\ApiRequest;
+use HttpClientBundle\Test\RequestTestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**

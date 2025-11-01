@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace HttpClientBundle\Tests\Request;
+namespace HttpClientBundle\Test;
 
 use HttpClientBundle\Request\RequestInterface;
 use PHPUnit\Framework\Attributes\CoversNothing;
@@ -27,8 +27,8 @@ abstract class RequestTestCase extends TestCase
         RequestInterface $request,
         string $message = '',
     ): void {
-        $this->assertSame($expectedPath, $request->getRequestPath(), $message !== '' ? $message : '请求路径不符合预期');
-        $this->assertSame($expectedOptions, $request->getRequestOptions(), $message !== '' ? $message : '请求参数不符合预期');
-        $this->assertSame($expectedMethod, $request->getRequestMethod(), $message !== '' ? $message : '请求方法不符合预期');
+        $this->assertSame($expectedPath, $request->getRequestPath(), '' !== $message ? $message : '请求路径不符合预期');
+        $this->assertSame($expectedOptions, $request->getRequestOptions(), '' !== $message ? $message : '请求参数不符合预期');
+        $this->assertSame($expectedMethod, $request->getRequestMethod(), '' !== $message ? $message : '请求方法不符合预期');
     }
 }
