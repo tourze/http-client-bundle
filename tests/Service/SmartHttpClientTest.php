@@ -84,6 +84,17 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
         $this->client = new SmartHttpClient($this->cache, $this->contextService, $this->logger);
     }
 
+    /**
+     * 使用反射将内部 HttpClient 注入到被测客户端
+     */
+    private function injectInnerClient(HttpClientInterface $inner): void
+    {
+        $ref = new \ReflectionClass($this->client);
+        $prop = $ref->getProperty('inner');
+        $prop->setAccessible(true);
+        $prop->setValue($this->client, $inner);
+    }
+
     public function testRefreshDomainResolveCache(): void
     {
         $this->createSmartHttpClient();
@@ -215,21 +226,8 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
             $this->contextService->setSupportCoroutine(false);
         }
 
-        // 创建SmartHttpClient的匿名子类来覆盖getInner方法
-        $this->client = new class($this->cache, $this->contextService, $this->logger, $mockInnerClient) extends SmartHttpClient {
-            private HttpClientInterface $mockInner;
-
-            public function __construct(CacheInterface $cache, ContextServiceInterface $contextService, LoggerInterface $logger, HttpClientInterface $mockInner)
-            {
-                parent::__construct($cache, $contextService, $logger);
-                $this->mockInner = $mockInner;
-            }
-
-            protected function getInner(): HttpClientInterface
-            {
-                return $this->mockInner;
-            }
-        };
+        // 通过反射注入内部 HttpClient，避免继承 final 类
+        $this->injectInnerClient($mockInnerClient);
 
         $method = 'GET';
         $url = 'https://example.com/test';
@@ -342,21 +340,8 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
             $this->contextService->setSupportCoroutine(false);
         }
 
-        // 创建SmartHttpClient的匿名子类来覆盖getInner方法
-        $this->client = new class($this->cache, $this->contextService, $this->logger, $mockInnerClient) extends SmartHttpClient {
-            private HttpClientInterface $mockInner;
-
-            public function __construct(CacheInterface $cache, ContextServiceInterface $contextService, LoggerInterface $logger, HttpClientInterface $mockInner)
-            {
-                parent::__construct($cache, $contextService, $logger);
-                $this->mockInner = $mockInner;
-            }
-
-            protected function getInner(): HttpClientInterface
-            {
-                return $this->mockInner;
-            }
-        };
+        // 通过反射注入内部 HttpClient，避免继承 final 类
+        $this->injectInnerClient($mockInnerClient);
 
         $responses = [$mockResponse];
 
