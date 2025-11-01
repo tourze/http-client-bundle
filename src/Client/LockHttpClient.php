@@ -26,7 +26,6 @@ class LockHttpClient implements HttpClientInterface
     ) {
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $lockKey = $options['lock_key'] ?? null;
@@ -123,7 +122,6 @@ class LockHttpClient implements HttpClientInterface
         return $this->client->stream($responses, $timeout);
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function withOptions(array $options): static
     {
         $clone = clone $this;

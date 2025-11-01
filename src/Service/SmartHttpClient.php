@@ -79,7 +79,6 @@ class SmartHttpClient implements HttpClientInterface
         return $this->inner;
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $startTime = new \DateTimeImmutable();
@@ -133,7 +132,7 @@ class SmartHttpClient implements HttpClientInterface
             $endTime = new \DateTimeImmutable();
             $duration = ($endTime->getTimestamp() * 1000 + (int) $endTime->format('v')) - ($startTime->getTimestamp() * 1000 + (int) $startTime->format('v'));
 
-                  // 使用 getInfo('http_code') 避免消费响应体
+            // 使用 getInfo('http_code') 避免消费响应体
             $httpCode = $response->getInfo('http_code');
             $statusCode = intval(is_numeric($httpCode) ? $httpCode : 0);
 
@@ -168,20 +167,11 @@ class SmartHttpClient implements HttpClientInterface
         return $this->getInner()->stream($responses, $timeout);
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function withOptions(array $options): static
     {
         $clone = clone $this;
         $clone->inner = $this->getInner()->withOptions($options);
 
         return $clone;
-    }
-
-    /**
-     * @internal For testing purposes only
-     */
-    public function getInnerClient(): ?HttpClientInterface
-    {
-        return $this->inner;
     }
 }

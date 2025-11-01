@@ -25,7 +25,6 @@ class CacheHttpClient implements HttpClientInterface
     ) {
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         // 如果有声明缓存，则我们处理一次缓存
@@ -77,7 +76,6 @@ class CacheHttpClient implements HttpClientInterface
         return $this->cache;
     }
 
-    /** @phpstan-ignore-next-line missingType.iterableValue */
     public function withOptions(array $options): static
     {
         $clone = clone $this;
