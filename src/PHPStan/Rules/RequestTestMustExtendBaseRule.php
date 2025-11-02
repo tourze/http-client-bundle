@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace HttpClientBundle\PHPStan\Rules;
 
+use HttpClientBundle\Request\RequestInterface;
+use HttpClientBundle\Test\RequestTestCase;
 use PhpParser\Node;
 use PhpParser\Node\Expr\ClassConstFetch;
 use PhpParser\Node\Identifier;
@@ -17,6 +19,7 @@ use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 
 /**
  * 要求针对实现 RequestInterface 的目标类编写的测试必须继承统一的请求测试基类。
@@ -25,11 +28,11 @@ use PHPUnit\Framework\TestCase;
  */
 final class RequestTestMustExtendBaseRule implements Rule
 {
-    private const BASE_TEST_CLASS = 'HttpClientBundle\Tests\Request\RequestTestCase';
+    private const BASE_TEST_CLASS = RequestTestCase::class;
 
-    private const REQUEST_INTERFACE = 'HttpClientBundle\Request\RequestInterface';
+    private const REQUEST_INTERFACE = RequestInterface::class;
 
-    private const INTEGRATION_TEST_CLASS = 'Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase';
+    private const INTEGRATION_TEST_CLASS = AbstractIntegrationTestCase::class;
 
     public function __construct(
         private readonly ReflectionProvider $reflectionProvider,

@@ -16,6 +16,17 @@ use PHPUnit\Framework\TestCase;
 abstract class RequestTestCase extends TestCase
 {
     /**
+     * 设置测试环境，调用子类的 onSetUp 方法
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        if (method_exists($this, 'onSetUp')) {
+            $this->onSetUp();
+        }
+    }
+
+    /**
      * 辅助断言请求对象的核心信息，避免重复代码。
      *
      * @param array<array-key, mixed>|null $expectedOptions
