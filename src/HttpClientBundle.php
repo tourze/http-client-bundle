@@ -13,6 +13,7 @@ use Tourze\DoctrineIpBundle\DoctrineIpBundle;
 use Tourze\DoctrineTimestampBundle\DoctrineTimestampBundle;
 use Tourze\DoctrineUserAgentBundle\DoctrineUserAgentBundle;
 use Tourze\DoctrineUserBundle\DoctrineUserBundle;
+use Tourze\EasyAdminMenuBundle\EasyAdminMenuBundle;
 use Tourze\ScheduleEntityCleanBundle\ScheduleEntityCleanBundle;
 use Tourze\Symfony\AopAsyncBundle\AopAsyncBundle;
 use Tourze\Symfony\RuntimeContextBundle\RuntimeContextBundle;
@@ -38,6 +39,7 @@ class HttpClientBundle extends Bundle implements BundleDependencyInterface
             RuntimeContextBundle::class => ['all' => true],
             ScheduleEntityCleanBundle::class => ['all' => true],
             AopAsyncBundle::class => ['all' => true],
+            EasyAdminMenuBundle::class => ['all' => true],
         ];
     }
 }
