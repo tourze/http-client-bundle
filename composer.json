@@ -69,5 +69,6 @@
     "psr-4": {
       "HttpClientBundle\\Tests\\": "tests"
     }
-  }
+  },
+  "version": "1.0.0"
 }
