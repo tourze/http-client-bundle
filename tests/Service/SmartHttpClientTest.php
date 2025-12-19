@@ -3,10 +3,8 @@
 namespace HttpClientBundle\Tests\Service;
 
 use HttpClientBundle\Service\SmartHttpClient;
-use HttpClientBundle\Tests\Helper\TestEntityGenerator;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
-use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\HttpClient\ChunkInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -16,6 +14,13 @@ use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 use Tourze\Symfony\RuntimeContextBundle\Service\ContextServiceInterface;
 
 /**
+ * 集成测试：SmartHttpClient
+ *
+ * 测试策略：
+ * - 使用容器注入的真实服务（CacheInterface、ContextServiceInterface、LoggerInterface）
+ * - 仅 Mock 网络请求层（HttpClientInterface）
+ * - 不依赖任何测试 Stub
+ *
  * @internal
  */
 #[CoversClass(SmartHttpClient::class)]
@@ -28,60 +33,19 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
 
     private ContextServiceInterface $contextService;
 
-    private LoggerInterface $logger;
-
     protected function onSetUp(): void
     {
-        // AbstractIntegrationTestCase 要求的抽象方法实现
-        // 由于我们不使用标准的 setUp 流程，这里留空
-    }
+        // 从容器获取 SmartHttpClient（依赖会自动注入）
+        $this->client = self::getService(SmartHttpClient::class);
 
-    /**
-     * 创建简化的 CacheInterface 测试实现
-     */
-    private function createTestCacheImplementation(): CacheInterface
-    {
-        return new TestCache();
-    }
+        // 获取依赖服务（用于测试验证）
+        $this->cache = self::getService(CacheInterface::class);
+        $this->contextService = self::getService(ContextServiceInterface::class);
 
-    /**
-     * 创建简化的 ContextServiceInterface 测试实现
-     */
-    private function createTestContextServiceImplementation(): ContextServiceInterface
-    {
-        return new TestContextService();
-    }
-
-    /**
-     * 创建测试用的ResponseStreamInterface实现
-     */
-    private function createTestResponseStream(): ResponseStreamInterface
-    {
-        return TestEntityGenerator::createResponseStream();
-    }
-
-    /**
-     * 创建简化的 LoggerInterface 测试实现
-     */
-    private function createTestLoggerImplementation(): LoggerInterface
-    {
-        return new TestLoggerWithLevelTracking();
-    }
-
-    private function createSmartHttpClient(): void
-    {
-        // 创建优化的测试实现类
-        $this->cache = $this->createTestCacheImplementation();
-        $this->contextService = $this->createTestContextServiceImplementation();
-        $this->logger = $this->createTestLoggerImplementation();
-
-        // 设置协程支持默认为 false，这样会使用 CurlHttpClient
+        // 设置协程支持为 false，强制使用 CurlHttpClient
         if (method_exists($this->contextService, 'setSupportCoroutine')) {
             $this->contextService->setSupportCoroutine(false);
         }
-
-        // @phpstan-ignore-next-line integrationTest.noDirectInstantiationOfCoveredClass - 需要使用匿名类依赖验证行为
-        $this->client = new SmartHttpClient($this->cache, $this->contextService, $this->logger);
     }
 
     /**
@@ -91,55 +55,24 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
     {
         $ref = new \ReflectionClass($this->client);
         $prop = $ref->getProperty('inner');
-        $prop->setAccessible(true);
         $prop->setValue($this->client, $inner);
     }
 
-    public function testRefreshDomainResolveCache(): void
+    /**
+     * 创建 Mock Response（匿名类实现）
+     */
+    private function createMockResponse(int $statusCode = 200, string $content = ''): ResponseInterface
     {
-        $this->createSmartHttpClient();
+        return new class($statusCode, $content) implements ResponseInterface {
+            public function __construct(
+                private readonly int $statusCode,
+                private readonly string $content,
+            ) {
+            }
 
-        $host = 'example.com';
-        $ip = '93.184.216.34';
-
-        // 使用测试数据设置方法
-        if (method_exists($this->cache, 'setTestData')) {
-            $this->cache->setTestData('api-client-resolve-example.com', $ip);
-        }
-
-        $result = $this->client->refreshDomainResolveCache($host);
-        $this->assertEquals($ip, $result);
-
-        // 验证缓存被调用
-        if (method_exists($this->cache, 'getCallLog')) {
-            $callLog = $this->cache->getCallLog();
-            $this->assertIsArray($callLog);
-            $this->assertArrayHasKey('get', $callLog);
-            $getLog = $callLog['get'] ?? [];
-            $this->assertIsArray($getLog);
-            $this->assertContains('api-client-resolve-example.com', $getLog);
-        }
-    }
-
-    public function testWithOptions(): void
-    {
-        $this->createSmartHttpClient();
-
-        $options = ['timeout' => 30];
-
-        $newClient = $this->client->withOptions($options);
-
-        $this->assertNotSame($this->client, $newClient);
-        $this->assertNotNull($newClient);
-    }
-
-    public function testRequest(): void
-    {
-        // 创建简化的测试实现
-        $mockResponse = new class implements ResponseInterface {
             public function getStatusCode(): int
             {
-                return 200;
+                return $this->statusCode;
             }
 
             /** @return array<string, list<string>> */
@@ -150,7 +83,7 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
 
             public function getContent(bool $throw = true): string
             {
-                return '';
+                return $this->content;
             }
 
             /** @return array<string, mixed> */
@@ -165,11 +98,21 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
 
             public function getInfo(?string $type = null): mixed
             {
+                if ('http_code' === $type) {
+                    return $this->statusCode;
+                }
+
                 return null;
             }
         };
+    }
 
-        $mockStream = new class implements ResponseStreamInterface {
+    /**
+     * 创建 Mock ResponseStream（匿名类实现）
+     */
+    private function createMockResponseStream(): ResponseStreamInterface
+    {
+        return new class implements ResponseStreamInterface {
             public function key(): ResponseInterface
             {
                 throw new \LogicException('Not implemented');
@@ -193,17 +136,60 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
                 return false;
             }
         };
+    }
 
-        $mockInnerClient = new class($mockResponse, $mockStream) implements HttpClientInterface {
+    /**
+     * 测试：refreshDomainResolveCache - DNS 缓存功能
+     */
+    public function testRefreshDomainResolveCache(): void
+    {
+        $host = 'example.com';
+
+        // 第一次调用：会触发 DNS 解析并缓存
+        $ip1 = $this->client->refreshDomainResolveCache($host);
+        $this->assertNotEmpty($ip1);
+
+        // 第二次调用：应从缓存读取，返回相同结果
+        $ip2 = $this->client->refreshDomainResolveCache($host);
+        $this->assertEquals($ip1, $ip2);
+    }
+
+    /**
+     * 测试：withOptions - 返回新实例
+     */
+    public function testWithOptions(): void
+    {
+        $options = ['timeout' => 30];
+
+        $newClient = $this->client->withOptions($options);
+
+        $this->assertNotSame($this->client, $newClient);
+        $this->assertInstanceOf(SmartHttpClient::class, $newClient);
+    }
+
+    /**
+     * 测试：request - HTTP 请求转发
+     */
+    public function testRequest(): void
+    {
+        $mockResponse = $this->createMockResponse(200, 'test content');
+        $mockStream = $this->createMockResponseStream();
+
+        // 创建追踪请求调用的 Mock HttpClient
+        $requestCalls = [];
+        $mockInnerClient = new class($mockResponse, $mockStream, $requestCalls) implements HttpClientInterface {
             public function __construct(
                 private readonly ResponseInterface $response,
                 private readonly ResponseStreamInterface $stream,
+                private array &$requestCalls,
             ) {
             }
 
             /** @param array<mixed> $options */
             public function request(string $method, string $url, array $options = []): ResponseInterface
             {
+                $this->requestCalls[] = ['method' => $method, 'url' => $url, 'options' => $options];
+
                 return $this->response;
             }
 
@@ -219,14 +205,7 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
             }
         };
 
-        $this->createSmartHttpClient();
-
-        // 设置协程支持为false，使用CurlHttpClient
-        if (method_exists($this->contextService, 'setSupportCoroutine')) {
-            $this->contextService->setSupportCoroutine(false);
-        }
-
-        // 通过反射注入内部 HttpClient，避免继承 final 类
+        // 注入 Mock HttpClient
         $this->injectInnerClient($mockInnerClient);
 
         $method = 'GET';
@@ -236,71 +215,36 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
         // 执行请求
         $response = $this->client->request($method, $url, $options);
 
-        // 检查返回的是ResponseInterface实例
+        // 验证：返回 ResponseInterface 实例
         $this->assertInstanceOf(ResponseInterface::class, $response);
 
-        // 验证响应状态码
+        // 验证：状态码正确
         $this->assertEquals(200, $response->getStatusCode());
 
-        // 验证日志记录被调用
-        if (method_exists($this->logger, 'getLogs') && method_exists($this->logger, 'getLogsByLevel')) {
-            $logs = $this->logger->getLogs();
-            $debugLogs = $this->logger->getLogsByLevel('debug');
-            $infoLogs = $this->logger->getLogsByLevel('info');
+        // 验证：内容正确
+        $this->assertEquals('test content', $response->getContent());
 
-            $this->assertIsArray($debugLogs);
-            $this->assertIsArray($infoLogs);
-            $this->assertGreaterThanOrEqual(2, count($debugLogs), 'Should have at least 2 debug log entries');
-            $this->assertGreaterThanOrEqual(1, count($infoLogs), 'Should have at least 1 info log entry');
-        }
+        // 验证：inner client 的 request 方法被调用
+        $this->assertCount(1, $requestCalls);
+        $this->assertEquals($method, $requestCalls[0]['method']);
+        $this->assertEquals($url, $requestCalls[0]['url']);
     }
 
+    /**
+     * 测试：stream - 流式响应转发
+     */
     public function testStream(): void
     {
-        // 创建简化的测试实现
-        $mockResponse = new class implements ResponseInterface {
-            public function getStatusCode(): int
-            {
-                return 200;
-            }
+        $mockResponse = $this->createMockResponse(200);
+        $mockStream = $this->createMockResponseStream();
 
-            /** @return array<string, list<string>> */
-            public function getHeaders(bool $throw = true): array
-            {
-                return [];
-            }
-
-            public function getContent(bool $throw = true): string
-            {
-                return '';
-            }
-
-            /** @return array<string, mixed> */
-            public function toArray(bool $throw = true): array
-            {
-                return [];
-            }
-
-            public function cancel(): void
-            {
-            }
-
-            public function getInfo(?string $type = null): mixed
-            {
-                return null;
-            }
-        };
-
-        // 创建测试用的ResponseStreamInterface实现
-        $mockStream = $this->createTestResponseStream();
-
-        $mockInnerClient = new class($mockResponse, $mockStream) implements HttpClientInterface {
-            /** @var array<int, array{responses: iterable<ResponseInterface>|ResponseInterface, timeout: ?float}> */
-            private array $streamCalls = [];
-
+        // 创建追踪 stream 调用的 Mock HttpClient
+        $streamCalls = [];
+        $mockInnerClient = new class($mockResponse, $mockStream, $streamCalls) implements HttpClientInterface {
             public function __construct(
                 private readonly ResponseInterface $response,
                 private readonly ResponseStreamInterface $stream,
+                private array &$streamCalls,
             ) {
             }
 
@@ -313,9 +257,6 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
             public function stream(iterable|ResponseInterface $responses, ?float $timeout = null): ResponseStreamInterface
             {
                 $this->streamCalls[] = ['responses' => $responses, 'timeout' => $timeout];
-                if (method_exists($this->stream, 'markStreamMethodCalled')) {
-                    $this->stream->markStreamMethodCalled();
-                }
 
                 return $this->stream;
             }
@@ -325,39 +266,22 @@ final class SmartHttpClientTest extends AbstractIntegrationTestCase
             {
                 return $this;
             }
-
-            /** @return array<int, array{responses: iterable<ResponseInterface>|ResponseInterface, timeout: ?float}> */
-            public function getStreamCalls(): array
-            {
-                return $this->streamCalls;
-            }
         };
 
-        $this->createSmartHttpClient();
-
-        // 设置协程支持为false
-        if (method_exists($this->contextService, 'setSupportCoroutine')) {
-            $this->contextService->setSupportCoroutine(false);
-        }
-
-        // 通过反射注入内部 HttpClient，避免继承 final 类
+        // 注入 Mock HttpClient
         $this->injectInnerClient($mockInnerClient);
 
         $responses = [$mockResponse];
 
-        // 测试stream方法不抛出异常
+        // 执行 stream 方法
         $stream = $this->client->stream($responses);
 
-        // 检查返回的是ResponseStreamInterface实例
+        // 验证：返回 ResponseStreamInterface 实例
         $this->assertInstanceOf(ResponseStreamInterface::class, $stream);
 
-        // 验证inner client的stream方法被调用
-        if (method_exists($mockStream, 'wasStreamMethodCalled')) {
-            $this->assertTrue($mockStream->wasStreamMethodCalled(), 'Stream method should have been called');
-        }
-        $streamCalls = $mockInnerClient->getStreamCalls();
-        $this->assertCount(1, $streamCalls, 'Stream method should be called exactly once');
-        $this->assertEquals($responses, $streamCalls[0]['responses'], 'Responses should match');
-        $this->assertNull($streamCalls[0]['timeout'], 'Timeout should be null');
+        // 验证：inner client 的 stream 方法被调用
+        $this->assertCount(1, $streamCalls);
+        $this->assertEquals($responses, $streamCalls[0]['responses']);
+        $this->assertNull($streamCalls[0]['timeout']);
     }
 }

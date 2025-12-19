@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
  * 有时候开发会搞混乱本地开发时的请求次序，为此特地加一个检测
  */
 #[Autoconfigure(public: true)]
-class CheckLocalDomainSubscriber
+final class CheckLocalDomainSubscriber
 {
     public function __construct(private readonly RequestStack $requestStack)
     {

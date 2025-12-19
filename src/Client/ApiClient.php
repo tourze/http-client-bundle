@@ -19,7 +19,6 @@ use Laminas\Diagnostics\Result\ResultInterface;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpClient\RetryableHttpClient;
 use Symfony\Component\Lock\LockFactory;
@@ -30,9 +29,14 @@ use Tourze\DoctrineAsyncInsertBundle\Service\AsyncInsertService;
 use Tourze\Symfony\AopAsyncBundle\Attribute\Async;
 
 /**
- * 通用的客户端实现
+ * 通用的 API 客户端抽象基类
+ *
+ * 提供 HTTP 请求的通用功能，包括重试、缓存、锁等。
+ * 子类需要实现具体的请求参数构建和响应解析逻辑。
+ *
+ * 注意：这是抽象类，不会被直接注册为服务。
+ * 具体的子类应该自己配置 monolog channel 和其他服务属性。
  */
-#[AutoconfigureTag(name: 'monolog.logger', attributes: ['channel' => 'api_client'])]
 abstract class ApiClient implements CheckInterface
 {
     private const DEFAULT_TIMEOUT_SECONDS = 10;

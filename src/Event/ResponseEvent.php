@@ -4,7 +4,7 @@ namespace HttpClientBundle\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-class ResponseEvent extends Event
+final class ResponseEvent extends Event
 {
     use RequestTrait;
 

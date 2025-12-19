@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 /**
  * 减少一些不必要的服务注册
  */
-class RemoveUnusedServicePass implements CompilerPassInterface
+final class RemoveUnusedServicePass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {

@@ -18,24 +18,20 @@ use Tourze\PHPUnitSymfonyKernelTest\AbstractEventSubscriberTestCase;
 #[RunTestsInSeparateProcesses]
 final class CheckLocalDomainSubscriberTest extends AbstractEventSubscriberTestCase
 {
-    private CheckLocalDomainSubscriber $subscriber;
-
-    private RequestStack $requestStack;
-
     protected function onSetUp(): void
     {
-        $this->requestStack = new RequestStack();
-        // @phpstan-ignore-next-line integrationTest.noDirectInstantiationOfCoveredClass - 需要精确控制RequestStack状态
-        $this->subscriber = new CheckLocalDomainSubscriber($this->requestStack);
+        // 空实现，测试方法中直接从容器获取服务
     }
 
     public function testCheckLocalDomainsWithNoCurrentRequest(): void
     {
+        $subscriber = self::getService(CheckLocalDomainSubscriber::class);
+
         $event = new RequestEvent();
         $event->setUrl('https://example.com');
 
         // 应该不抛出异常，因为没有当前请求
-        $this->subscriber->checkLocalDomains($event);
+        $subscriber->checkLocalDomains($event);
 
         // 验证事件的URL没有被修改
         self::assertSame('https://example.com', $event->getUrl());
@@ -43,14 +39,17 @@ final class CheckLocalDomainSubscriberTest extends AbstractEventSubscriberTestCa
 
     public function testCheckLocalDomainsWithDifferentHost(): void
     {
+        $requestStack = self::getService(RequestStack::class);
         $request = Request::create('https://localhost:8000/test');
-        $this->requestStack->push($request);
+        $requestStack->push($request);
+
+        $subscriber = self::getService(CheckLocalDomainSubscriber::class);
 
         $event = new RequestEvent();
         $event->setUrl('https://example.com');
 
         // 应该不抛出异常，因为是不同的主机
-        $this->subscriber->checkLocalDomains($event);
+        $subscriber->checkLocalDomains($event);
 
         // 验证事件的URL没有被修改
         self::assertSame('https://example.com', $event->getUrl());
@@ -58,8 +57,11 @@ final class CheckLocalDomainSubscriberTest extends AbstractEventSubscriberTestCa
 
     public function testCheckLocalDomainsWithSameHostThrowsException(): void
     {
+        $requestStack = self::getService(RequestStack::class);
         $request = Request::create('https://localhost:8000/test');
-        $this->requestStack->push($request);
+        $requestStack->push($request);
+
+        $subscriber = self::getService(CheckLocalDomainSubscriber::class);
 
         $event = new RequestEvent();
         $event->setUrl('https://localhost:8000');
@@ -67,13 +69,16 @@ final class CheckLocalDomainSubscriberTest extends AbstractEventSubscriberTestCa
         $this->expectException(LocalDomainRequestException::class);
         $this->expectExceptionMessage('在开发阶段，为了避免HTTP请求时可能造成的进程阻塞，请不要使用 HttpClient 请求 https://localhost:8000 相关地址。');
 
-        $this->subscriber->checkLocalDomains($event);
+        $subscriber->checkLocalDomains($event);
     }
 
     public function testCheckLocalDomainsWithSameHostPrefixThrowsException(): void
     {
+        $requestStack = self::getService(RequestStack::class);
         $request = Request::create('https://localhost:8000/test');
-        $this->requestStack->push($request);
+        $requestStack->push($request);
+
+        $subscriber = self::getService(CheckLocalDomainSubscriber::class);
 
         $event = new RequestEvent();
         $event->setUrl('https://localhost:8000/api/test');
@@ -81,6 +86,6 @@ final class CheckLocalDomainSubscriberTest extends AbstractEventSubscriberTestCa
         $this->expectException(LocalDomainRequestException::class);
         $this->expectExceptionMessage('在开发阶段，为了避免HTTP请求时可能造成的进程阻塞，请不要使用 HttpClient 请求 https://localhost:8000 相关地址。');
 
-        $this->subscriber->checkLocalDomains($event);
+        $subscriber->checkLocalDomains($event);
     }
 }

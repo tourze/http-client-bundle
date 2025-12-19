@@ -25,8 +25,6 @@ final class AutoRetryRequestTest extends RequestTestCase
             {
                 return '/api/test';
             }
-
-            /** @phpstan-ignore-next-line method.childReturnType */
             public function getRequestOptions(): array
             {
                 return [];

@@ -7,7 +7,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 /**
  * 异步发送请求的后置事件
  */
-class AfterAsyncHttpClientEvent extends Event
+final class AfterAsyncHttpClientEvent extends Event
 {
     private string $result = '';
 

@@ -5,8 +5,8 @@ services:
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
   # 如果确认要使用自动扫描、自动注册，建议尽可能将要扫描的目录路径收缩，不要设置那么大的范围
-  HttpClientBundle\Client\:
-    resource: '../../Client/'
+  # Client 目录只包含工具类和装饰器（ApiClient 抽象类、CacheHttpClient、LockHttpClient），
+  # 这些类不需要作为服务注册，由 ApiClient 子类内部使用
   HttpClientBundle\Command\:
     resource: '../../Command/'
   HttpClientBundle\Controller\:

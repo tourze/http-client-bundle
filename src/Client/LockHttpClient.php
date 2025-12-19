@@ -4,20 +4,22 @@ declare(strict_types=1);
 
 namespace HttpClientBundle\Client;
 
-use DateTimeImmutable;
 use HttpClientBundle\Exception\LockTimeoutHttpClientException;
-use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Symfony\Component\DependencyInjection\Attribute\When;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
-#[When(env: 'never')]
-#[WithMonologChannel(channel: 'http_client')]
-class LockHttpClient implements HttpClientInterface
+/**
+ * 带锁功能的 HTTP 客户端装饰器
+ *
+ * 这是一个工具类/装饰器，由 ApiClient 内部使用，不作为服务注册到容器。
+ */
+#[Exclude]
+final class LockHttpClient implements HttpClientInterface
 {
     public function __construct(
         private HttpClientInterface $client,

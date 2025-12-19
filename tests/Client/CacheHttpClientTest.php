@@ -1,24 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace HttpClientBundle\Tests\Client;
 
 use HttpClientBundle\Client\CacheHttpClient;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
-use Tourze\PHPUnitSymfonyKernelTest\AbstractIntegrationTestCase;
 
 /**
+ * CacheHttpClient 单元测试
+ *
+ * CacheHttpClient 是一个工具类/装饰器，不作为服务注册到容器。
+ * 使用单元测试模式，Mock HttpClient（网络请求）。
+ *
  * @internal
  */
 #[CoversClass(CacheHttpClient::class)]
-#[RunTestsInSeparateProcesses]
-final class CacheHttpClientTest extends AbstractIntegrationTestCase
+final class CacheHttpClientTest extends AbstractClientTestCase
 {
     private CacheHttpClient $client;
 
@@ -26,14 +29,10 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
 
     private CacheInterface&MockObject $cache;
 
-    protected function onSetUp(): void
+    protected function setUp(): void
     {
-        // AbstractIntegrationTestCase 要求的抽象方法实现
-        // 由于我们不使用标准的 setUp 流程，这里留空
-    }
+        parent::setUp();
 
-    private function createCacheHttpClient(): void
-    {
         /** @var HttpClientInterface&MockObject $innerClient */
         $innerClient = $this->createMock(HttpClientInterface::class);
         /** @var CacheInterface&MockObject $cache */
@@ -42,14 +41,11 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
         $this->innerClient = $innerClient;
         $this->cache = $cache;
 
-        // @phpstan-ignore-next-line integrationTest.noDirectInstantiationOfCoveredClass - 需要使用Mock依赖验证行为
         $this->client = new CacheHttpClient($this->innerClient, $this->cache);
     }
 
     public function testRequestWithoutCaching(): void
     {
-        $this->createCacheHttpClient();
-
         $method = 'GET';
         $url = 'https://example.com';
         /** @var array<string, mixed> */
@@ -70,8 +66,6 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
 
     public function testRequestWithCaching(): void
     {
-        $this->createCacheHttpClient();
-
         $method = 'GET';
         $url = 'https://example.com';
         $options = [
@@ -100,8 +94,6 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
 
     public function testWithOptions(): void
     {
-        $this->createCacheHttpClient();
-
         /** @var array<string, mixed> */
         $options = ['timeout' => 30];
         $newInnerClient = $this->createMock(HttpClientInterface::class);
@@ -115,12 +107,11 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
         $newClient = $this->client->withOptions($options);
 
         $this->assertNotSame($this->client, $newClient);
-        $this->assertNotNull($newClient);
+        $this->assertInstanceOf(CacheHttpClient::class, $newClient);
     }
 
     public function testStream(): void
     {
-        $this->createCacheHttpClient();
         $responses = [
             $this->createMock(ResponseInterface::class),
             $this->createMock(ResponseInterface::class),
@@ -138,5 +129,12 @@ final class CacheHttpClientTest extends AbstractIntegrationTestCase
         $result = $this->client->stream($responses, $timeout);
 
         $this->assertSame($expectedStream, $result);
+    }
+
+    public function testGetCache(): void
+    {
+        $result = $this->client->getCache();
+
+        $this->assertSame($this->cache, $result);
     }
 }

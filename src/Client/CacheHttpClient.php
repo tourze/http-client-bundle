@@ -4,19 +4,23 @@ declare(strict_types=1);
 
 namespace HttpClientBundle\Client;
 
-use DateTimeImmutable;
 use HttpClientBundle\Response\CacheResponse;
-use Monolog\Attribute\WithMonologChannel;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 use Symfony\Contracts\HttpClient\ResponseStreamInterface;
 
-#[WithMonologChannel(channel: 'http_client')]
-class CacheHttpClient implements HttpClientInterface
+/**
+ * 带缓存功能的 HTTP 客户端装饰器
+ *
+ * 这是一个工具类/装饰器，由 ApiClient 内部使用，不作为服务注册到容器。
+ */
+#[Exclude]
+final class CacheHttpClient implements HttpClientInterface
 {
     public function __construct(
         private HttpClientInterface $client,
